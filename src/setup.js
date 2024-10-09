@@ -83,7 +83,7 @@ async function installUnityHub(selfHosted) {
 }
 
 async function installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted, architecture) {
-    let unityPath = await findUnity(unityHubPath, unityVersion);
+    let unityPath = await findUnity(unityHubPath, unityVersion, installPath);
     if (!unityPath) {
         if (installPath) {
             if (process.platform === 'linux' || process.platform === 'darwin') {
@@ -94,7 +94,7 @@ async function installUnityEditor(unityHubPath, installPath, unityVersion, unity
         }
         const archSelect = (process.platform == 'darwin') ? `--architecture=${architecture}` : "";
         await executeHub(unityHubPath, `install --version ${unityVersion} --changeset ${unityVersionChangeset} ${archSelect}`);
-        unityPath = await findUnity(unityHubPath, unityVersion);
+        unityPath = await findUnity(unityHubPath, unityVersion, installPath);
         if (!unityPath) {
             throw new Error('unity editor installation failed');
         }
@@ -118,8 +118,22 @@ async function postInstall(selfHosted) {
     }
 }
 
-async function findUnity(unityHubPath, unityVersion) {
+async function findUnity(unityHubPath, unityVersion, installPath) {
     let unityPath = '';
+    if (installPath) {
+        unityPath = 'Editor/Unity';
+        if (process.platform == 'win32') {
+            unityPath = path.join('Editor', 'Unity.exe');
+        } else if (process.platform == 'darwin') {
+            unityPath = 'Unity.app/Contents/MacOS/Unity';
+        }
+        unityPath = path.join(installPath, unityVersion, unityPath);
+        if (fs.existsSync(unityPath)) {
+            console.log(`found exist unity in ${unityPath}`)
+            return unityPath;
+        }
+        unityPath = '';
+    }
     const output = await executeHub(unityHubPath, `editors --installed`);
     const match = output.match(new RegExp(`${unityVersion}.+, installed at (.+)`));
     if (match) {
