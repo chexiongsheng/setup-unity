@@ -13,7 +13,7 @@ async function run() {
         const installPath = core.getInput('install-path');
         const projectPath = core.getInput('project-path');
         const selfHosted = getInputAsBool('self-hosted');
-        const architecture = getInputAsBool('architecture');
+        const architecture = core.getInput('architecture');
 
         if (!unityVersion) {
             [unityVersion, unityVersionChangeset] = await findProjectVersion(projectPath);
