@@ -17,8 +17,6 @@ async function run() {
 
         if (!unityVersion) {
             [unityVersion, unityVersionChangeset] = await findProjectVersion(projectPath);
-        } else if (!unityVersionChangeset) {
-            unityVersionChangeset = await findVersionChangeset(unityVersion);
         }
         const unityHubPath = await installUnityHub(selfHosted);
         const unityPath = await installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted, architecture);
@@ -93,6 +91,9 @@ async function installUnityEditor(unityHubPath, installPath, unityVersion, unity
             await executeHub(unityHubPath, `install-path --set "${installPath}"`);
         }
         const archSelect = (process.platform == 'darwin') ? `--architecture=${architecture}` : "";
+        if (!unityVersionChangeset) {
+            unityVersionChangeset = await findVersionChangeset(unityVersion);
+        }
         await executeHub(unityHubPath, `install --version ${unityVersion} --changeset ${unityVersionChangeset} ${archSelect}`);
         unityPath = await findUnity(unityHubPath, unityVersion, installPath);
         if (!unityPath) {
