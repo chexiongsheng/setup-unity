@@ -13,6 +13,7 @@ async function run() {
         const installPath = core.getInput('install-path');
         const projectPath = core.getInput('project-path');
         const selfHosted = getInputAsBool('self-hosted');
+        const architecture = getInputAsBool('architecture');
 
         if (!unityVersion) {
             [unityVersion, unityVersionChangeset] = await findProjectVersion(projectPath);
@@ -20,7 +21,7 @@ async function run() {
             unityVersionChangeset = await findVersionChangeset(unityVersion);
         }
         const unityHubPath = await installUnityHub(selfHosted);
-        const unityPath = await installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted);
+        const unityPath = await installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted, architecture);
         if (unityModules.length > 0) {
             await installUnityModules(unityHubPath, unityVersion, unityModules, unityModulesChild);
         }
@@ -79,7 +80,7 @@ async function installUnityHub(selfHosted) {
     return unityHubPath;
 }
 
-async function installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted) {
+async function installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted, architecture) {
     let unityPath = await findUnity(unityHubPath, unityVersion);
     if (!unityPath) {
         if (installPath) {
@@ -89,7 +90,8 @@ async function installUnityEditor(unityHubPath, installPath, unityVersion, unity
             }
             await executeHub(unityHubPath, `install-path --set "${installPath}"`);
         }
-        await executeHub(unityHubPath, `install --version ${unityVersion} --changeset ${unityVersionChangeset}`);
+        const archSelect = (process.platform == 'darwin') ? `--architecture=${architecture}` : "";
+        await executeHub(unityHubPath, `install --version ${unityVersion} --changeset ${unityVersionChangeset} ${archSelect}`);
         unityPath = await findUnity(unityHubPath, unityVersion);
         if (!unityPath) {
             throw new Error('unity editor installation failed');

@@ -46,6 +46,9 @@ inputs:
   install-path:
     description: Path where the Unity editor will be installed
     required: false
+  architecture:
+    description: Architecture which the Unity editor will be installed
+    required: false
   self-hosted:
     description: If true, avoid to invoke commands with sudo
     required: false
