@@ -30,6 +30,7 @@ async function run() {
         core.setOutput('unity-version', unityVersion);
         core.setOutput('unity-path', unityPath);
         core.exportVariable('UNITY_PATH', unityPath);
+        process.env.UNITY_PATH = unityPath;
     } catch (error) {
         core.setFailed(error.message);
     }
