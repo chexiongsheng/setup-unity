@@ -29,6 +29,7 @@ async function run() {
 
         core.setOutput('unity-version', unityVersion);
         core.setOutput('unity-path', unityPath);
+        console.log(`set output unity-path: ${unityPath}`);
         core.exportVariable('UNITY_PATH', unityPath);
         process.env.UNITY_PATH = unityPath;
     } catch (error) {
